@@ -1,36 +1,19 @@
 package abby.mod.uhc;
 
-import java.util.function.LongFunction;
-
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import net.minecraft.util.Util;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.IExtendedNoiseRandom;
 import net.minecraft.world.gen.LazyAreaLayerContext;
 import net.minecraft.world.gen.area.IArea;
 import net.minecraft.world.gen.area.IAreaFactory;
 import net.minecraft.world.gen.area.LazyArea;
-import net.minecraft.world.gen.layer.AddBambooForestLayer;
-import net.minecraft.world.gen.layer.AddIslandLayer;
-import net.minecraft.world.gen.layer.AddMushroomIslandLayer;
-import net.minecraft.world.gen.layer.AddSnowLayer;
-import net.minecraft.world.gen.layer.DeepOceanLayer;
-import net.minecraft.world.gen.layer.EdgeBiomeLayer;
-import net.minecraft.world.gen.layer.EdgeLayer;
-import net.minecraft.world.gen.layer.HillsLayer;
-import net.minecraft.world.gen.layer.IslandLayer;
-import net.minecraft.world.gen.layer.Layer;
-import net.minecraft.world.gen.layer.MixOceansLayer;
-import net.minecraft.world.gen.layer.MixRiverLayer;
-import net.minecraft.world.gen.layer.OceanLayer;
-import net.minecraft.world.gen.layer.RareBiomeLayer;
-import net.minecraft.world.gen.layer.RemoveTooMuchOceanLayer;
-import net.minecraft.world.gen.layer.RiverLayer;
-import net.minecraft.world.gen.layer.ShoreLayer;
-import net.minecraft.world.gen.layer.SmoothLayer;
-import net.minecraft.world.gen.layer.StartRiverLayer;
-import net.minecraft.world.gen.layer.ZoomLayer;
+import net.minecraft.world.gen.layer.*;
 import net.minecraft.world.gen.layer.traits.IAreaTransformer1;
+
+import java.util.function.LongFunction;
 
 public class UHCLayerUtil {
    private static final Int2IntMap field_242937_a = Util.make(new Int2IntOpenHashMap(), (p_242938_0_) -> {
@@ -114,7 +97,7 @@ public class UHCLayerUtil {
       return iareafactory;
    }
 
-   private static <T extends IArea, C extends IExtendedNoiseRandom<T>> IAreaFactory<T> func_237216_a_(boolean p_237216_0_, int p_237216_1_, int p_237216_2_, LongFunction<C> p_237216_3_) {
+   private static <T extends IArea, C extends IExtendedNoiseRandom<T>> IAreaFactory<T> func_237216_a_(Registry<Biome> lookupRegistry, int p_237216_1_, int p_237216_2_, LongFunction<C> p_237216_3_) {
       IAreaFactory<T> iareafactory = IslandLayer.INSTANCE.apply(p_237216_3_.apply(1L));
       iareafactory = ZoomLayer.FUZZY.apply(p_237216_3_.apply(2000L), iareafactory);
       iareafactory = AddIslandLayer.INSTANCE.apply(p_237216_3_.apply(1L), iareafactory);
@@ -138,7 +121,7 @@ public class UHCLayerUtil {
       iareafactory = repeat(1000L, ZoomLayer.NORMAL, iareafactory, 0, p_237216_3_);
       IAreaFactory<T> lvt_6_1_ = repeat(1000L, ZoomLayer.NORMAL, iareafactory, 0, p_237216_3_);
       lvt_6_1_ = StartRiverLayer.INSTANCE.apply(p_237216_3_.apply(100L), lvt_6_1_);
-      IAreaFactory<T> lvt_7_1_ = (new UHCBiomeLayer(p_237216_0_)).apply(p_237216_3_.apply(200L), iareafactory);
+      IAreaFactory<T> lvt_7_1_ = (new UHCBiomeLayer(lookupRegistry)).apply(p_237216_3_.apply(200L), iareafactory);
       lvt_7_1_ = AddBambooForestLayer.INSTANCE.apply(p_237216_3_.apply(1001L), lvt_7_1_);
       lvt_7_1_ = repeat(1000L, ZoomLayer.NORMAL, lvt_7_1_, 2, p_237216_3_);
       lvt_7_1_ = EdgeBiomeLayer.INSTANCE.apply(p_237216_3_.apply(1000L), lvt_7_1_);
@@ -151,7 +134,7 @@ public class UHCLayerUtil {
       lvt_7_1_ = RareBiomeLayer.INSTANCE.apply(p_237216_3_.apply(1001L), lvt_7_1_);
 
       for(int i = 0; i < p_237216_1_; ++i) {
-         lvt_7_1_ = ZoomLayer.NORMAL.apply(p_237216_3_.apply((long)(1000 + i)), lvt_7_1_);
+         lvt_7_1_ = ZoomLayer.NORMAL.apply(p_237216_3_.apply(1000 + i), lvt_7_1_);
          if (i == 0) {
             lvt_7_1_ = AddIslandLayer.INSTANCE.apply(p_237216_3_.apply(3L), lvt_7_1_);
          }
@@ -166,11 +149,10 @@ public class UHCLayerUtil {
       return MixOceansLayer.INSTANCE.apply(p_237216_3_.apply(100L), lvt_7_1_, iareafactory1);
    }
 
-   public static Layer func_237215_a_(long p_237215_0_, boolean p_237215_2_, int p_237215_3_, int p_237215_4_) {
-      int i = 25;
-      IAreaFactory<LazyArea> iareafactory = func_237216_a_(p_237215_2_, p_237215_3_, p_237215_4_, (p_227473_2_) -> {
-         return new LazyAreaLayerContext(25, p_237215_0_, p_227473_2_);
-      });
+   public static Layer func_237215_a_(Registry<Biome> lookupRegistry, long p_237215_0_, boolean p_237215_2_, int p_237215_3_, int p_237215_4_) {
+      IAreaFactory<LazyArea> iareafactory = func_237216_a_(lookupRegistry, p_237215_3_, p_237215_4_, (p_227473_2_) ->
+              new LazyAreaLayerContext(25, p_237215_0_, p_227473_2_));
+
       return new Layer(iareafactory);
    }
 
@@ -210,6 +192,6 @@ public class UHCLayerUtil {
       DESERT,
       RIVER,
       SWAMP,
-      MUSHROOM;
+      MUSHROOM
    }
 }
